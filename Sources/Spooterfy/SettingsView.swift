@@ -88,7 +88,7 @@ struct SettingsView: View {
             } header: {
                 Text("Appearance")
             } footer: {
-                Text("Tinted glass is frosted and easier to read; Clear shows more of what's behind the window. By default the window is frosted while you use it and clear when you click away. Raise Darkness if text is hard to read over a bright desktop.")
+                Text("Tinted glass is frosted and easiest to read. Clear is lighter glass that still blurs. Transparent shows the desktop unblurred. By default both are Clear, and the glass looks the same whether or not the window is focused. Raise Darkness if text is hard to read over a bright desktop.")
                     .font(.atkinson(.callout))
                     .foregroundStyle(.secondary)
             }

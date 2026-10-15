@@ -295,6 +295,7 @@ private struct PreviousRow: View {
         }
         .font(.atkinson(font))
         .foregroundStyle(.white.opacity(0.6))
+        .shadow(color: .black.opacity(0.5), radius: 3, y: 1)
         .id(item.id)
         .transition(.opacity)
         .help("Previously played")
@@ -338,6 +339,8 @@ private struct QueueList: View {
                                      startPoint: .top, endPoint: .bottom))
             }
         }
+        // Keeps the list readable over a busy desktop when the window is transparent.
+        .shadow(color: .black.opacity(0.5), radius: 3, y: 1)
     }
 }
 
@@ -356,14 +359,21 @@ private struct BackdropView: View {
     var body: some View {
         let glassStyle = appearsActive ? focusedStyle : backgroundStyle
         ZStack {
-            WindowGlass(style: glassStyle)
+            // A fresh glass view per style: a live NSGlassEffectView doesn't
+            // reliably redraw when only its `style` changes.
+            if glassStyle != .transparent {
+                WindowGlass(style: glassStyle)
+                    .id(glassStyle)
+                    .transition(.opacity)
+            }
             if albumGlow, let image {
                 Image(nsImage: image)
                     .resizable()
                     .aspectRatio(contentMode: .fill)
                     .blur(radius: 80, opaque: true)
                     .saturation(1.4)
-                    .opacity(glassStyle == .clear ? 0.3 : 0.45)
+                    // Faint over clear and transparent so the desktop still shows through.
+                    .opacity(glassStyle.albumGlowOpacity)
                     .id(ObjectIdentifier(image))
                     .transition(.opacity)
             }

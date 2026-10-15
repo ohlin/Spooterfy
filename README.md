@@ -5,7 +5,7 @@ A small, resizable macOS window that shows what's playing on Spotify.
 - **Now playing:** the album artwork, big, with the song title and artist over it.
 - **Previously played:** one small line above the artwork.
 - **Up next:** your queue, below the artwork (or beside it in a wide window).
-- **Liquid Glass:** the window is glass over your desktop, tinted with the album's colours.
+- **Liquid Glass:** the window is clear glass over your desktop, tinted with the album's colours, and looks the same focused or not.
 
 Everything scales with the window, from a 140-point square up to full screen.
 
@@ -36,7 +36,7 @@ With Spotify Premium, playback controls go through Spotify's Web API. Without Pr
 
 ## Settings
 
-- **Glass when focused / in background:** Clear or Tinted (frosted), matching the Liquid Glass options in System Settings → Appearance. By default the window is frosted while you use it and clear when you click away.
+- **Glass when focused / in background:** Clear (Liquid Glass), Tinted (frosted) or Transparent (no glass). By default both are Clear, and the glass looks the same whether or not the window is focused.
 - **Darkness:** darkens the glass so text stays readable over a bright desktop.
 - **Tint glass with album colors:** washes the glass with the current album's colours.
 - **Keep window on top:** keeps Spooterfy above other apps, including full-screen ones, on every desktop.

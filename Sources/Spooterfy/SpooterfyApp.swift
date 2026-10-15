@@ -70,6 +70,7 @@ private struct WindowConfigurator: NSViewRepresentable {
             window.isOpaque = false
             window.backgroundColor = .clear
             window.level = onTop ? .floating : .normal
+            AlwaysActiveAppearance.apply(to: window)
             // Stay visible over full-screen apps and on every Space while pinned.
             if onTop {
                 window.collectionBehavior.insert([.canJoinAllSpaces, .fullScreenAuxiliary])
