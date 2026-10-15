@@ -43,6 +43,24 @@ enum Snapshots {
                 try? rep.representation(using: .png, properties: [:])?.write(to: url)
             }
         }
+        // Smallest and largest text sizes. (The debug binary has its own defaults domain.)
+        for scale in [TextScale.steps.first!, TextScale.steps.last!] {
+            UserDefaults.standard.set(scale, forKey: TextScale.key)
+            for (w, h) in [(380, 640), (700, 380)] {
+                let view = NowPlayingView()
+                    .environmentObject(store)
+                    .environmentObject(auth)
+                    .frame(width: CGFloat(w), height: CGFloat(h))
+                let renderer = ImageRenderer(content: view)
+                renderer.scale = 1
+                if let cg = renderer.cgImage,
+                   let png = NSBitmapImageRep(cgImage: cg).representation(using: .png, properties: [:]) {
+                    try? png.write(to: URL(fileURLWithPath: dir).appendingPathComponent("snap-text\(Int(scale * 100))-\(w)x\(h).png"))
+                }
+            }
+        }
+        UserDefaults.standard.removeObject(forKey: TextScale.key)
+
         // The same window after Spotify stops.
         store.setIdleForSnapshots(true)
         let idleView = NowPlayingView()

@@ -5,9 +5,11 @@ import SwiftUI
 struct SpooterfyApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     @StateObject private var store = PlayerStore(auth: SpotifyAuth())
+    @AppStorage(TextScale.key) private var textScale = TextScale.standard
 
     init() {
         Typography.registerFonts()
+        MainActor.assumeIsolated { TextScale.installEqualsShortcut() }
     }
 
     var body: some Scene {
@@ -22,6 +24,18 @@ struct SpooterfyApp: App {
         .defaultSize(width: 380, height: 640)
         .windowResizability(.contentMinSize)
         .commands {
+            CommandGroup(before: .toolbar) {
+                Button("Make Text Bigger") { textScale = TextScale.bigger(than: textScale) }
+                    .keyboardShortcut("+", modifiers: .command)
+                    .disabled(textScale >= TextScale.steps.last!)
+                Button("Make Text Smaller") { textScale = TextScale.smaller(than: textScale) }
+                    .keyboardShortcut("-", modifiers: .command)
+                    .disabled(textScale <= TextScale.steps.first!)
+                Button("Actual Size") { textScale = TextScale.standard }
+                    .keyboardShortcut("0", modifiers: .command)
+                    .disabled(textScale == TextScale.standard)
+                Divider()
+            }
             CommandMenu("Playback") {
                 Button(store.isPlaying ? "Pause" : "Play") { store.playPause() }
                 Button("Next Track") { store.next() }

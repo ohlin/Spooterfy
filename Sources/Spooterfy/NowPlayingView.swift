@@ -3,6 +3,7 @@ import SwiftUI
 struct NowPlayingView: View {
     @EnvironmentObject private var store: PlayerStore
     @EnvironmentObject private var auth: SpotifyAuth
+    @AppStorage(TextScale.key) private var textScale = TextScale.standard
 
     var body: some View {
         GeometryReader { geo in
@@ -20,6 +21,8 @@ struct NowPlayingView: View {
             .frame(width: geo.size.width, height: geo.size.height)
         }
         .ignoresSafeArea()
+        .environment(\.textScale, CGFloat(textScale))
+        .animation(.easeInOut(duration: 0.2), value: textScale)
         .frame(minWidth: 140, minHeight: 140)
         .focusable()
         .focusEffectDisabled()
@@ -38,6 +41,8 @@ private struct PlayerLayout: View {
     let current: Item
     @EnvironmentObject private var store: PlayerStore
 
+    @Environment(\.textScale) private var textScale
+
     var body: some View {
         let w = size.width, h = size.height
         let pad = clamp(min(w, h) * 0.05, 8, 24)
@@ -48,7 +53,7 @@ private struct PlayerLayout: View {
             // Side by side: artwork left, previous + up next on the right.
             let art = min(h - pad * 2, w * 0.62)
             let colWidth = w - art - pad * 3
-            let font = clamp(colWidth * 0.055, 10, 15)
+            let font = clamp(colWidth * 0.055, 10, 15) * textScale
             HStack(alignment: .top, spacing: pad) {
                 ArtworkCard(item: current, side: art)
                 if colWidth > 90 {
@@ -67,7 +72,7 @@ private struct PlayerLayout: View {
             .frame(width: w, height: h, alignment: .leading)
         } else {
             // Stacked: previous above, artwork, up next below.
-            let font = clamp(w * 0.034, 10, 15)
+            let font = clamp(w * 0.034, 10, 15) * textScale
             let rowH = font * 2.6
             let showPrev = store.previous != nil && h > 220
             let prevH = showPrev ? font * 1.5 + gap : 0
@@ -105,10 +110,12 @@ private struct ArtworkCard: View {
     @AppStorage("showControlsOnHover") private var showControls = true
     @State private var hovering = false
 
+    @Environment(\.textScale) private var textScale
+
     var body: some View {
         let radius = clamp(side * 0.03, 4, 14)
-        let titleSize = clamp(side * 0.075, 12, 46)
-        let artistSize = clamp(side * 0.05, 10, 30)
+        let titleSize = clamp(side * 0.075, 12, 46) * textScale
+        let artistSize = clamp(side * 0.05, 10, 30) * textScale
         let inset = clamp(side * 0.055, 8, 28)
 
         ZStack(alignment: .bottomLeading) {
@@ -188,6 +195,8 @@ private struct Scrubber: View {
     @State private var hoverX: CGFloat?
     @State private var dragFraction: Double?
 
+    @Environment(\.textScale) private var textScale
+
     var body: some View {
         let thin = clamp(side * 0.008, 2, 4)
         let active = hoverX != nil || dragFraction != nil
@@ -212,10 +221,10 @@ private struct Scrubber: View {
                         .shadow(color: store.accent.opacity(active ? 0.6 : 0), radius: 4)
 
                     if let bubbleFraction, durationMs != nil {
-                        TimeBubble(ms: Int(bubbleFraction * duration), size: clamp(side * 0.035, 10, 14))
+                        TimeBubble(ms: Int(bubbleFraction * duration), size: clamp(side * 0.035, 10, 14) * textScale)
                             .fixedSize()
                             .position(x: clamp(width * bubbleFraction, 28, width - 28),
-                                      y: geo.size.height - thickness - clamp(side * 0.035, 10, 14) * 1.3)
+                                      y: geo.size.height - thickness - clamp(side * 0.035, 10, 14) * textScale * 1.3)
                             .transition(.opacity)
                     }
                 }

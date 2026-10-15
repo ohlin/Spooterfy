@@ -10,6 +10,7 @@ struct SettingsView: View {
     @AppStorage("glassBackground") private var backgroundStyle = GlassDefaults.background
     @AppStorage("glassDarkness") private var darkness = GlassDefaults.darkness
     @AppStorage("albumGlow") private var albumGlow = GlassDefaults.albumGlow
+    @AppStorage(TextScale.key) private var textScale = TextScale.standard
 
     var body: some View {
         Form {
@@ -94,6 +95,23 @@ struct SettingsView: View {
             }
 
             Section("Window") {
+                LabeledContent("Text size") {
+                    HStack(spacing: 10) {
+                        Button { textScale = TextScale.smaller(than: textScale) } label: {
+                            Image(systemName: "textformat.size.smaller")
+                        }
+                        .disabled(textScale <= TextScale.steps.first!)
+                        .help("Make Text Smaller (⌘-)")
+                        Text(TextScale.label(textScale))
+                            .monospacedDigit()
+                            .frame(minWidth: 44)
+                        Button { textScale = TextScale.bigger(than: textScale) } label: {
+                            Image(systemName: "textformat.size.larger")
+                        }
+                        .disabled(textScale >= TextScale.steps.last!)
+                        .help("Make Text Bigger (⌘+)")
+                    }
+                }
                 Toggle("Keep window on top", isOn: $alwaysOnTop)
                 Toggle("Show playback controls on hover", isOn: $showControls)
             }
