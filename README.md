@@ -48,11 +48,12 @@ Spooterfy talks only to Spotify. It signs in with PKCE, so it needs no client se
 
 ## Building
 
-Requires macOS 26 or later and Xcode 26 or later (for Liquid Glass).
+Requires macOS 26 or later and Xcode 26 or later (for Liquid Glass). Builds are for Apple silicon only.
 
 ```bash
 ./build.sh            # builds build/Spooterfy.app
 ./build.sh --install  # also copies it to /Applications
+./build.sh --dmg      # also makes build/Spooterfy-<version>.dmg for a release
 ```
 
 The app is ad-hoc signed. If you copy it to another Mac, right-click it and choose **Open** the first time.

@@ -1,5 +1,7 @@
 #!/bin/zsh
-# Builds Spooterfy.app into ./build. Pass --install to copy it to /Applications.
+# Builds Spooterfy.app into ./build.
+#   --install  also copies it to /Applications
+#   --dmg      also makes build/Spooterfy-<version>.dmg for a GitHub release
 set -euo pipefail
 cd "$(dirname "$0")"
 
@@ -18,6 +20,19 @@ xcrun actool Resources/spooterfy.icon --compile "$APP/Contents/Resources" \
 cp -R Resources/Fonts "$APP/Contents/Resources/Fonts"
 codesign --force --sign - "$APP"
 echo "Built $APP"
+
+if [[ "${1:-}" == "--dmg" ]]; then
+  VERSION=$(/usr/libexec/PlistBuddy -c "Print CFBundleShortVersionString" Resources/Info.plist)
+  DMG="build/Spooterfy-$VERSION.dmg"
+  STAGE=build/dmg
+  rm -rf "$STAGE" "$DMG"
+  mkdir -p "$STAGE"
+  cp -R "$APP" "$STAGE/"
+  ln -s /Applications "$STAGE/Applications"   # drag-to-install target
+  hdiutil create -volname "Spooterfy" -srcfolder "$STAGE" -fs HFS+ -format UDZO -ov "$DMG" >/dev/null
+  rm -rf "$STAGE"
+  echo "Built $DMG"
+fi
 
 if [[ "${1:-}" == "--install" ]]; then
   rm -rf /Applications/Spooterfy.app
