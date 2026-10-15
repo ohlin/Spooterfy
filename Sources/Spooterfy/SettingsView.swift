@@ -6,6 +6,9 @@ struct SettingsView: View {
     @AppStorage("clientID") private var clientID = ""
     @AppStorage("alwaysOnTop") private var alwaysOnTop = false
     @AppStorage("showControlsOnHover") private var showControls = true
+    @AppStorage("glassStyle") private var glassStyle = GlassDefaults.style
+    @AppStorage("glassDarkness") private var darkness = GlassDefaults.darkness
+    @AppStorage("albumGlow") private var albumGlow = GlassDefaults.albumGlow
 
     var body: some View {
         Form {
@@ -54,6 +57,34 @@ struct SettingsView: View {
                 }
                 .font(.callout)
                 .foregroundStyle(.secondary)
+            }
+
+            Section {
+                Picker("Glass", selection: $glassStyle) {
+                    ForEach(GlassStyle.allCases) { Text($0.title).tag($0) }
+                }
+                .pickerStyle(.segmented)
+                LabeledContent("Darkness") {
+                    HStack {
+                        Image(systemName: "sun.max").foregroundStyle(.secondary)
+                        Slider(value: $darkness, in: 0...0.9)
+                        Image(systemName: "moon.fill").foregroundStyle(.secondary)
+                    }
+                }
+                Toggle("Tint glass with album colors", isOn: $albumGlow)
+                if glassStyle != GlassDefaults.style || darkness != GlassDefaults.darkness || albumGlow != GlassDefaults.albumGlow {
+                    Button("Reset to Defaults") {
+                        glassStyle = GlassDefaults.style
+                        darkness = GlassDefaults.darkness
+                        albumGlow = GlassDefaults.albumGlow
+                    }
+                }
+            } header: {
+                Text("Appearance")
+            } footer: {
+                Text("Clear glass shows more of what's behind the window; Tinted is easier to read. Raise Darkness if text is hard to read over a bright desktop.")
+                    .font(.callout)
+                    .foregroundStyle(.secondary)
             }
 
             Section("Window") {

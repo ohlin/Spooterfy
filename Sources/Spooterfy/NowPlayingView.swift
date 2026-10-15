@@ -196,13 +196,15 @@ private struct TransportControls: View {
 
     var body: some View {
         let button = clamp(size * 0.13, 26, 64)
-        HStack(spacing: button * 0.45) {
-            control("backward.fill", button * 0.75) { store.previousTrack() }
-            control(store.isPlaying ? "pause.fill" : "play.fill", button) { store.playPause() }
-            control("forward.fill", button * 0.75) { store.next() }
+        GlassEffectContainer(spacing: button * 0.3) {
+            HStack(spacing: button * 0.45) {
+                control("backward.fill", button * 0.75) { store.previousTrack() }
+                control(store.isPlaying ? "pause.fill" : "play.fill", button) { store.playPause() }
+                control("forward.fill", button * 0.75) { store.next() }
+            }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(.black.opacity(0.25))
+        .background(.black.opacity(0.2))
     }
 
     private func control(_ symbol: String, _ diameter: CGFloat, action: @escaping () -> Void) -> some View {
@@ -211,8 +213,8 @@ private struct TransportControls: View {
                 .font(.system(size: diameter * 0.42, weight: .semibold))
                 .foregroundStyle(.white)
                 .frame(width: diameter, height: diameter)
-                .background(.ultraThinMaterial, in: Circle())
                 .contentShape(Circle())
+                .glassEffect(.clear.interactive(), in: Circle())
         }
         .buttonStyle(.plain)
     }
@@ -228,7 +230,7 @@ private struct PreviousRow: View {
         HStack(spacing: font * 0.4) {
             Image(systemName: "arrow.uturn.backward")
                 .font(.system(size: font * 0.8, weight: .semibold))
-            (Text(item.name).fontWeight(.semibold) + Text("  ·  " + item.subtitle).foregroundColor(.white.opacity(0.7)))
+            Text("\(Text(item.name).fontWeight(.semibold))\(Text("  ·  " + item.subtitle).foregroundStyle(.white.opacity(0.7)))")
                 .lineLimit(1)
                 .truncationMode(.tail)
         }
@@ -282,25 +284,31 @@ private struct QueueList: View {
 
 // MARK: - Backdrop and empty states
 
+/// Liquid Glass over the desktop, an optional wash of album colour, then the
+/// user's darkness on top so text stays legible over bright backgrounds.
 private struct BackdropView: View {
     let image: NSImage?
+    @AppStorage("glassStyle") private var glassStyle = GlassDefaults.style
+    @AppStorage("glassDarkness") private var darkness = GlassDefaults.darkness
+    @AppStorage("albumGlow") private var albumGlow = GlassDefaults.albumGlow
 
     var body: some View {
         ZStack {
-            Color(white: 0.07)
-            if let image {
+            WindowGlass(style: glassStyle)
+            if albumGlow, let image {
                 Image(nsImage: image)
                     .resizable()
                     .aspectRatio(contentMode: .fill)
-                    .blur(radius: 70, opaque: true)
-                    .saturation(1.3)
-                    .opacity(0.75)
+                    .blur(radius: 80, opaque: true)
+                    .saturation(1.4)
+                    .opacity(glassStyle == .clear ? 0.3 : 0.45)
                     .id(ObjectIdentifier(image))
                     .transition(.opacity)
             }
-            Color.black.opacity(0.4)
+            Color.black.opacity(darkness)
         }
         .clipped()
+        .animation(.easeInOut(duration: 0.2), value: darkness)
     }
 }
 

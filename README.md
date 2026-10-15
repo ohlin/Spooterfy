@@ -20,7 +20,7 @@ Spooterfy uses PKCE, so it needs no client secret. Sign-in tokens are stored in 
 
 ## Build
 
-Requires Xcode 16+ / Swift 6 on macOS 14+.
+Requires Xcode 26+ on macOS 26+ (Liquid Glass).
 
 ```bash
 ./build.sh            # builds build/Spooterfy.app

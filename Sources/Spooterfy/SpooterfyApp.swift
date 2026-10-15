@@ -58,7 +58,9 @@ private struct WindowConfigurator: NSViewRepresentable {
             guard let window = view.window else { return }
             window.isMovableByWindowBackground = true
             window.titlebarAppearsTransparent = true
-            window.backgroundColor = .black
+            // Clear window so the Liquid Glass background shows the desktop through it.
+            window.isOpaque = false
+            window.backgroundColor = .clear
             window.level = onTop ? .floating : .normal
             // Stay visible over full-screen apps and on every Space while pinned.
             if onTop {
