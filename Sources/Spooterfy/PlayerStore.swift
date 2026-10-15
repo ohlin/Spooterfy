@@ -16,6 +16,8 @@ final class PlayerStore: ObservableObject {
     /// The most vivid colour in the current artwork, for tinting the progress bar.
     @Published private(set) var accent: Color = .white
     @Published private(set) var problem: String?
+    /// Spotify has stopped entirely: the last song and list stay up, faded.
+    @Published private(set) var isIdle = false
 
     let auth: SpotifyAuth
     private let api: SpotifyAPI
@@ -79,14 +81,17 @@ final class PlayerStore: ObservableObject {
             let (playback, queue) = try await (playbackReq, queueReq)
 
             let item = playback?.item ?? queue?.currentlyPlaying
-            if let item, item.id != current?.id {
-                // Whatever was showing becomes "previous" the moment the track changes.
-                if let current { previous = current }
-                withAnimation(.easeInOut(duration: 0.35)) { current = item }
-                loadArtwork(item.artworkURL)
-            } else if item == nil, current != nil {
-                withAnimation { current = nil }
-                loadArtwork(nil)
+            if let item {
+                if item.id != current?.id {
+                    // Whatever was showing becomes "previous" the moment the track changes.
+                    if let current, !isIdle { previous = current }
+                    withAnimation(.easeInOut(duration: 0.35)) { current = item }
+                    loadArtwork(item.artworkURL)
+                }
+                if isIdle { withAnimation(.easeInOut(duration: 0.5)) { isIdle = false } }
+            } else if current != nil, !isIdle {
+                // Playback stopped: keep the last song and list on screen, faded.
+                withAnimation(.easeInOut(duration: 0.8)) { isIdle = true }
             }
 
             isPlaying = playback?.isPlaying ?? false
@@ -94,7 +99,8 @@ final class PlayerStore: ObservableObject {
             progressStamp = Date()
 
             let next = Array((queue?.queue ?? []).prefix(30))
-            if next != upNext { withAnimation(.easeInOut(duration: 0.25)) { upNext = next } }
+            // While idle Spotify reports an empty queue; keep showing the last one.
+            if !isIdle, next != upNext { withAnimation(.easeInOut(duration: 0.25)) { upNext = next } }
 
             problem = current == nil ? "Nothing playing on Spotify right now." : nil
             MediaKeys.shared.update(item: current, isPlaying: isPlaying, progressMs: progressMs)
@@ -110,6 +116,14 @@ final class PlayerStore: ObservableObject {
     private func loadInitialPrevious() async {
         guard let recent = try? await api.recentlyPlayed(limit: 3) else { return }
         let currentID = (try? await api.playback())?.item?.id
+        if currentID == nil, current == nil, let last = recent.first {
+            // Nothing playing at launch: show the most recent song, faded.
+            isIdle = true
+            current = last
+            previous = recent.dropFirst().first { $0.id != last.id }
+            loadArtwork(last.artworkURL)
+            return
+        }
         if previous == nil {
             previous = recent.first { $0.id != currentID }
         }
@@ -123,6 +137,7 @@ final class PlayerStore: ObservableObject {
         artwork = nil
         artworkURL = nil
         problem = nil
+        isIdle = false
         MediaKeys.shared.update(item: nil, isPlaying: false, progressMs: 0)
     }
 
@@ -190,6 +205,8 @@ extension PlayerStore {
         self.isPlaying = false
         self.progressMs = (current.durationMs ?? 0) / 3
     }
+
+    func setIdleForSnapshots(_ idle: Bool) { isIdle = idle }
 
     func stopPollingForSnapshots() { stopPolling() }
 }

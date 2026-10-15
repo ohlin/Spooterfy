@@ -55,8 +55,10 @@ private struct PlayerLayout: View {
                     VStack(alignment: .leading, spacing: gap) {
                         if let previous = store.previous {
                             PreviousRow(item: previous, font: font)
+                                .idleFaded(store.isIdle)
                         }
                         QueueList(items: store.upNext, font: font)
+                            .idleFaded(store.isIdle)
                     }
                     .frame(width: colWidth, height: art, alignment: .top)
                 }
@@ -79,11 +81,13 @@ private struct PlayerLayout: View {
                 if showPrev, let previous = store.previous {
                     PreviousRow(item: previous, font: font)
                         .frame(width: art, alignment: .leading)
+                        .idleFaded(store.isIdle)
                 }
                 ArtworkCard(item: current, side: art)
                 if queueH > rowH {
                     QueueList(items: store.upNext, font: font)
                         .frame(width: art, height: queueH, alignment: .top)
+                        .idleFaded(store.isIdle)
                 }
             }
             .padding(pad)
@@ -108,6 +112,9 @@ private struct ArtworkCard: View {
         let inset = clamp(side * 0.055, 8, 28)
 
         ZStack(alignment: .bottomLeading) {
+          // Artwork and titles fade when Spotify has stopped; the controls don't,
+          // so hovering still offers a full-strength play button.
+          ZStack(alignment: .bottomLeading) {
             artwork
                 .frame(width: side, height: side)
                 .clipped()
@@ -131,6 +138,8 @@ private struct ArtworkCard: View {
             .padding(.bottom, inset + 4)
             .id(item.id)
             .transition(.opacity)
+          }
+          .idleFaded(store.isIdle)
 
             if showControls && hovering {
                 TransportControls(size: side)
@@ -139,7 +148,10 @@ private struct ArtworkCard: View {
             }
 
             // Above the controls so it stays clickable while they're showing.
-            Scrubber(durationMs: item.durationMs, side: side)
+            if !store.isIdle {
+                Scrubber(durationMs: item.durationMs, side: side)
+                    .transition(.opacity)
+            }
         }
         .frame(width: side, height: side)
         .clipShape(RoundedRectangle(cornerRadius: radius, style: .continuous))
@@ -427,6 +439,15 @@ private struct EmptyState: View {
         }
         .foregroundStyle(.white.opacity(0.6))
         .padding(20)
+    }
+}
+
+extension View {
+    /// Faded and desaturated, for the last song shown after Spotify stops.
+    func idleFaded(_ idle: Bool) -> some View {
+        opacity(idle ? 0.4 : 1)
+            .saturation(idle ? 0.4 : 1)
+            .animation(.easeInOut(duration: 0.8), value: idle)
     }
 }
 

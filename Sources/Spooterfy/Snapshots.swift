@@ -43,6 +43,18 @@ enum Snapshots {
                 try? rep.representation(using: .png, properties: [:])?.write(to: url)
             }
         }
+        // The same window after Spotify stops.
+        store.setIdleForSnapshots(true)
+        let idleView = NowPlayingView()
+            .environmentObject(store)
+            .environmentObject(auth)
+            .frame(width: 380, height: 640)
+        let idleRenderer = ImageRenderer(content: idleView)
+        idleRenderer.scale = 1
+        if let cg = idleRenderer.cgImage,
+           let png = NSBitmapImageRep(cgImage: cg).representation(using: .png, properties: [:]) {
+            try? png.write(to: URL(fileURLWithPath: dir).appendingPathComponent("snap-idle-380x640.png"))
+        }
         exit(0)
     }
 }
