@@ -6,6 +6,10 @@ struct SpooterfyApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     @StateObject private var store = PlayerStore(auth: SpotifyAuth())
 
+    init() {
+        Typography.registerFonts()
+    }
+
     var body: some Scene {
         Window("Spooterfy", id: "main") {
             NowPlayingView()
@@ -58,6 +62,10 @@ private struct WindowConfigurator: NSViewRepresentable {
             guard let window = view.window else { return }
             window.isMovableByWindowBackground = true
             window.titlebarAppearsTransparent = true
+            // No traffic lights: ⌘W, ⌘M and ⌃⌘F still close, minimize and go full screen.
+            for kind in [NSWindow.ButtonType.closeButton, .miniaturizeButton, .zoomButton] {
+                window.standardWindowButton(kind)?.isHidden = true
+            }
             // Clear window so the Liquid Glass background shows the desktop through it.
             window.isOpaque = false
             window.backgroundColor = .clear

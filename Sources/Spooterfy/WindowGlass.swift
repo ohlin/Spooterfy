@@ -11,8 +11,8 @@ enum GlassStyle: String, CaseIterable, Identifiable {
 }
 
 enum GlassDefaults {
-    static let style = GlassStyle.tinted
-    static let darkness = 0.25
+    static let style = GlassStyle.clear
+    static let darkness = 0.1
     static let albumGlow = true
 }
 

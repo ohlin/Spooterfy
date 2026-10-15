@@ -14,7 +14,7 @@ struct SettingsView: View {
         Form {
             Section {
                 TextField("Client ID", text: $clientID, prompt: Text("Paste your Spotify Client ID"))
-                    .font(.system(.body, design: .monospaced))
+                    .font(.atkinsonMono(.body))
                     .disabled(auth.isSignedIn)
 
                 HStack {
@@ -33,7 +33,7 @@ struct SettingsView: View {
                     }
                 }
                 if let error = auth.lastError {
-                    Text(error).font(.callout).foregroundStyle(.orange)
+                    Text(error).font(.atkinson(.callout)).foregroundStyle(.orange)
                 }
             } header: {
                 Text("Spotify")
@@ -42,7 +42,7 @@ struct SettingsView: View {
                     Text("Get a Client ID: open the [Spotify Developer Dashboard](https://developer.spotify.com/dashboard), create an app, tick **Web API**, and add this Redirect URI:")
                     HStack(spacing: 6) {
                         Text(SpotifyAuth.redirectURI)
-                            .font(.system(.callout, design: .monospaced))
+                            .font(.atkinsonMono(.callout))
                             .textSelection(.enabled)
                         Button {
                             NSPasteboard.general.clearContents()
@@ -55,7 +55,7 @@ struct SettingsView: View {
                     }
                     Text("Play/pause and skipping use the Web API with Spotify Premium, and fall back to controlling the Spotify app otherwise.")
                 }
-                .font(.callout)
+                .font(.atkinson(.callout))
                 .foregroundStyle(.secondary)
             }
 
@@ -83,7 +83,7 @@ struct SettingsView: View {
                 Text("Appearance")
             } footer: {
                 Text("Clear glass shows more of what's behind the window; Tinted is easier to read. Raise Darkness if text is hard to read over a bright desktop.")
-                    .font(.callout)
+                    .font(.atkinson(.callout))
                     .foregroundStyle(.secondary)
             }
 
@@ -93,6 +93,7 @@ struct SettingsView: View {
             }
         }
         .formStyle(.grouped)
+        .font(.atkinson(.body))
         .frame(width: 460)
         .fixedSize(horizontal: false, vertical: true)
     }

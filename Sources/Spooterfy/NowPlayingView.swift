@@ -117,10 +117,10 @@ private struct ArtworkCard: View {
 
             VStack(alignment: .leading, spacing: side * 0.008) {
                 Text(item.name)
-                    .font(.system(size: titleSize, weight: .bold))
+                    .font(.atkinson(titleSize, .bold))
                     .lineLimit(2)
                 Text(item.subtitle)
-                    .font(.system(size: artistSize, weight: .medium))
+                    .font(.atkinson(artistSize, .medium))
                     .foregroundStyle(.white.opacity(0.8))
                     .lineLimit(1)
             }
@@ -234,7 +234,7 @@ private struct PreviousRow: View {
                 .lineLimit(1)
                 .truncationMode(.tail)
         }
-        .font(.system(size: font))
+        .font(.atkinson(font))
         .foregroundStyle(.white.opacity(0.6))
         .id(item.id)
         .transition(.opacity)
@@ -249,12 +249,12 @@ private struct QueueList: View {
     var body: some View {
         VStack(alignment: .leading, spacing: font * 0.5) {
             Text("UP NEXT")
-                .font(.system(size: font * 0.75, weight: .bold))
+                .font(.atkinson(font * 0.75, .bold))
                 .tracking(1.2)
                 .foregroundStyle(.white.opacity(0.45))
             if items.isEmpty {
                 Text("Queue is empty")
-                    .font(.system(size: font))
+                    .font(.atkinson(font))
                     .foregroundStyle(.white.opacity(0.5))
             } else {
                 // Shows as many rows as fit; the rest fade out at the bottom edge.
@@ -262,10 +262,10 @@ private struct QueueList: View {
                     ForEach(Array(items.enumerated()), id: \.offset) { _, item in
                         VStack(alignment: .leading, spacing: 1) {
                             Text(item.name)
-                                .font(.system(size: font, weight: .semibold))
+                                .font(.atkinson(font, .semibold))
                                 .foregroundStyle(.white.opacity(0.92))
                             Text(item.subtitle)
-                                .font(.system(size: font * 0.85))
+                                .font(.atkinson(font * 0.85))
                                 .foregroundStyle(.white.opacity(0.55))
                         }
                         .lineLimit(1)
@@ -321,12 +321,13 @@ private struct ConnectPrompt: View {
                 .font(.system(size: 40))
                 .foregroundStyle(.white.opacity(0.6))
             Text("Connect Spotify")
-                .font(.title2.bold())
+                .font(.atkinson(.title2, .bold))
             Text("Add your Spotify Client ID in Settings, then connect your account.")
+                .font(.atkinson(.body))
                 .multilineTextAlignment(.center)
                 .foregroundStyle(.white.opacity(0.7))
             if let error = auth.lastError {
-                Text(error).font(.caption).foregroundStyle(.orange).multilineTextAlignment(.center)
+                Text(error).font(.atkinson(.caption)).foregroundStyle(.orange).multilineTextAlignment(.center)
             }
             HStack {
                 SettingsLink { Text("Open Settings…") }
@@ -348,6 +349,7 @@ private struct EmptyState: View {
             Image(systemName: "speaker.slash")
                 .font(.system(size: 34))
             Text(message)
+                .font(.atkinson(.body))
                 .multilineTextAlignment(.center)
         }
         .foregroundStyle(.white.opacity(0.6))
