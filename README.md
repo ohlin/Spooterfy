@@ -1,28 +1,85 @@
 # Spooterfy
 
-A small macOS window that shows what Spotify is playing: big album artwork with the title and artist over it, the previous song in small type above, and what's up next below. It resizes to any size; in wide windows the list moves beside the artwork.
+A small, resizable macOS window that shows what's playing on Spotify.
+
+- **Now playing:** the album artwork, big, with the song title and artist over it.
+- **Previously played:** one small line above the artwork.
+- **Up next:** your queue, below the artwork (or beside it in a wide window).
+- **Liquid Glass:** the window is glass over your desktop, tinted with the album's colours.
+
+Everything scales with the window, from a 140-point square up to full screen.
 
 ## Setup (once)
+
+Spotify needs a "Client ID" to let an app read what you're playing. It's free:
 
 1. Go to the [Spotify Developer Dashboard](https://developer.spotify.com/dashboard) and create an app.
 2. Tick **Web API**, and add this Redirect URI: `spooterfy://callback`
 3. Copy the app's **Client ID**.
 4. In Spooterfy, open **Settings** (⌘,), paste the Client ID, and click **Connect to Spotify**.
 
-Spooterfy uses PKCE, so it needs no client secret. Sign-in tokens are stored in `~/Library/Application Support/Spooterfy/tokens.json`, readable only by your user account.
+You stay signed in after that.
 
-## Controls
+## Using it
 
-- **Media keys** (play/pause, next, previous) control Spotify while Spooterfy is the focused app.
-- **Space**, **⌘→** / **⌘←**, or hover over the artwork for buttons.
-- With Spotify Premium, controls go through the Web API. Without it, or if no device is active, Spooterfy controls the Spotify app directly (macOS asks once for permission).
-- **Settings → Keep window on top** pins the window above other apps and on every Space.
+| Action | How |
+| --- | --- |
+| Play / pause | Media key, **Space**, or hover over the artwork |
+| Next / previous song | Media keys, **⌘→** / **⌘←**, or hover over the artwork |
+| Jump within the song | Click or drag the progress bar under the artwork |
+| Close / minimise / full screen | **⌘W** / **⌘M** / **⌃⌘F** (the window has no title-bar buttons) |
+| Move the window | Drag it from anywhere |
 
-## Build
+The media keys control Spotify while Spooterfy is the focused app.
 
-Requires Xcode 26+ on macOS 26+ (Liquid Glass).
+With Spotify Premium, playback controls go through Spotify's Web API. Without Premium, or when no Spotify device is active, Spooterfy controls the Spotify app on your Mac directly. macOS asks once for permission.
+
+## Settings
+
+- **Glass:** Clear or Tinted, matching the Liquid Glass options in System Settings → Appearance.
+- **Darkness:** darkens the glass so text stays readable over a bright desktop.
+- **Tint glass with album colors:** washes the glass with the current album's colours.
+- **Keep window on top:** keeps Spooterfy above other apps, including full-screen ones, on every desktop.
+- **Show playback controls on hover**
+
+## Privacy
+
+Spooterfy talks only to Spotify. It signs in with PKCE, so it needs no client secret. Your Client ID is stored in the app's preferences. Your sign-in tokens are stored in `~/Library/Application Support/Spooterfy/tokens.json`, readable only by your user account. Neither is in this repository.
+
+## Building
+
+Requires macOS 26 or later and Xcode 26 or later (for Liquid Glass).
 
 ```bash
 ./build.sh            # builds build/Spooterfy.app
 ./build.sh --install  # also copies it to /Applications
 ```
+
+The app is ad-hoc signed. If you copy it to another Mac, right-click it and choose **Open** the first time.
+
+For layout work, a debug build can render the main window at several sizes with sample data:
+
+```bash
+swift build && SPOOTERFY_SNAPSHOTS=/tmp/snaps .build/debug/Spooterfy
+```
+
+### Project layout
+
+| File | What it does |
+| --- | --- |
+| `SpooterfyApp.swift` | App, window setup, Playback menu |
+| `SpotifyAuth.swift` | Sign-in (Authorization Code + PKCE) and token storage |
+| `SpotifyAPI.swift` | Web API calls, plus the AppleScript fallback |
+| `PlayerStore.swift` | Polls Spotify and holds what the window shows |
+| `NowPlayingView.swift` | The main window's layout |
+| `SettingsView.swift` | Settings window |
+| `MediaKeys.swift` | Routes the keyboard's media keys to Spotify while focused |
+| `WindowGlass.swift` | Liquid Glass background and its settings |
+| `AccentColor.swift` | Picks the progress bar colour from the album art |
+| `Typography.swift` | Bundled Atkinson Hyperlegible fonts |
+
+## License
+
+The code is MIT licensed; see [LICENSE](LICENSE). The bundled Atkinson Hyperlegible fonts belong to the Braille Institute; see [Resources/Fonts/README.md](Resources/Fonts/README.md).
+
+Spooterfy isn't affiliated with or endorsed by Spotify.
