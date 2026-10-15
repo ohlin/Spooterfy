@@ -11,7 +11,10 @@ rm -rf "$APP"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 cp "$BIN" "$APP/Contents/MacOS/Spooterfy"
 cp Resources/Info.plist "$APP/Contents/Info.plist"
-[[ -f Resources/AppIcon.icns ]] && cp Resources/AppIcon.icns "$APP/Contents/Resources/"
+# Icon Composer file -> Assets.car (Liquid Glass icon) + spooterfy.icns (fallback).
+xcrun actool Resources/spooterfy.icon --compile "$APP/Contents/Resources" \
+  --platform macosx --minimum-deployment-target 26.0 --app-icon spooterfy \
+  --output-partial-info-plist build/icon-partial.plist >/dev/null
 cp -R Resources/Fonts "$APP/Contents/Resources/Fonts"
 codesign --force --sign - "$APP"
 echo "Built $APP"

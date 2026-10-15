@@ -347,11 +347,14 @@ private struct QueueList: View {
 /// user's darkness on top so text stays legible over bright backgrounds.
 private struct BackdropView: View {
     let image: NSImage?
-    @AppStorage("glassStyle") private var glassStyle = GlassDefaults.style
+    @AppStorage("glassFocused") private var focusedStyle = GlassDefaults.focused
+    @AppStorage("glassBackground") private var backgroundStyle = GlassDefaults.background
+    @Environment(\.appearsActive) private var appearsActive
     @AppStorage("glassDarkness") private var darkness = GlassDefaults.darkness
     @AppStorage("albumGlow") private var albumGlow = GlassDefaults.albumGlow
 
     var body: some View {
+        let glassStyle = appearsActive ? focusedStyle : backgroundStyle
         ZStack {
             WindowGlass(style: glassStyle)
             if albumGlow, let image {
@@ -368,6 +371,7 @@ private struct BackdropView: View {
         }
         .clipped()
         .animation(.easeInOut(duration: 0.2), value: darkness)
+        .animation(.easeInOut(duration: 0.3), value: glassStyle)
     }
 }
 

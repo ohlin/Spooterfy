@@ -36,7 +36,7 @@ With Spotify Premium, playback controls go through Spotify's Web API. Without Pr
 
 ## Settings
 
-- **Glass:** Clear or Tinted, matching the Liquid Glass options in System Settings → Appearance.
+- **Glass when focused / in background:** Clear or Tinted (frosted), matching the Liquid Glass options in System Settings → Appearance. By default the window is frosted while you use it and clear when you click away.
 - **Darkness:** darkens the glass so text stays readable over a bright desktop.
 - **Tint glass with album colors:** washes the glass with the current album's colours.
 - **Keep window on top:** keeps Spooterfy above other apps, including full-screen ones, on every desktop.
@@ -77,6 +77,7 @@ swift build && SPOOTERFY_SNAPSHOTS=/tmp/snaps .build/debug/Spooterfy
 | `WindowGlass.swift` | Liquid Glass background and its settings |
 | `AccentColor.swift` | Picks the progress bar colour from the album art |
 | `Typography.swift` | Bundled Atkinson Hyperlegible fonts |
+| `Resources/spooterfy.icon` | App icon, made in Icon Composer; `build.sh` compiles it with `actool` |
 
 ## License
 

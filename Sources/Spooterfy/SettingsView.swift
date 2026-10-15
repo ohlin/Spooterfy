@@ -6,7 +6,8 @@ struct SettingsView: View {
     @AppStorage("clientID") private var clientID = ""
     @AppStorage("alwaysOnTop") private var alwaysOnTop = false
     @AppStorage("showControlsOnHover") private var showControls = true
-    @AppStorage("glassStyle") private var glassStyle = GlassDefaults.style
+    @AppStorage("glassFocused") private var focusedStyle = GlassDefaults.focused
+    @AppStorage("glassBackground") private var backgroundStyle = GlassDefaults.background
     @AppStorage("glassDarkness") private var darkness = GlassDefaults.darkness
     @AppStorage("albumGlow") private var albumGlow = GlassDefaults.albumGlow
 
@@ -60,7 +61,11 @@ struct SettingsView: View {
             }
 
             Section {
-                Picker("Glass", selection: $glassStyle) {
+                Picker("Glass when focused", selection: $focusedStyle) {
+                    ForEach(GlassStyle.allCases) { Text($0.title).tag($0) }
+                }
+                .pickerStyle(.segmented)
+                Picker("Glass in background", selection: $backgroundStyle) {
                     ForEach(GlassStyle.allCases) { Text($0.title).tag($0) }
                 }
                 .pickerStyle(.segmented)
@@ -72,9 +77,10 @@ struct SettingsView: View {
                     }
                 }
                 Toggle("Tint glass with album colors", isOn: $albumGlow)
-                if glassStyle != GlassDefaults.style || darkness != GlassDefaults.darkness || albumGlow != GlassDefaults.albumGlow {
+                if focusedStyle != GlassDefaults.focused || backgroundStyle != GlassDefaults.background || darkness != GlassDefaults.darkness || albumGlow != GlassDefaults.albumGlow {
                     Button("Reset to Defaults") {
-                        glassStyle = GlassDefaults.style
+                        focusedStyle = GlassDefaults.focused
+                        backgroundStyle = GlassDefaults.background
                         darkness = GlassDefaults.darkness
                         albumGlow = GlassDefaults.albumGlow
                     }
@@ -82,7 +88,7 @@ struct SettingsView: View {
             } header: {
                 Text("Appearance")
             } footer: {
-                Text("Clear glass shows more of what's behind the window; Tinted is easier to read. Raise Darkness if text is hard to read over a bright desktop.")
+                Text("Tinted glass is frosted and easier to read; Clear shows more of what's behind the window. By default the window is frosted while you use it and clear when you click away. Raise Darkness if text is hard to read over a bright desktop.")
                     .font(.atkinson(.callout))
                     .foregroundStyle(.secondary)
             }

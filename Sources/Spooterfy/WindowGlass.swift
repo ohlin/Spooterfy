@@ -11,7 +11,9 @@ enum GlassStyle: String, CaseIterable, Identifiable {
 }
 
 enum GlassDefaults {
-    static let style = GlassStyle.clear
+    /// Frosted while you're using the window, clear when it's in the background.
+    static let focused = GlassStyle.tinted
+    static let background = GlassStyle.clear
     static let darkness = 0.1
     static let albumGlow = true
 }
