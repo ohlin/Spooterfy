@@ -78,6 +78,7 @@ final class SpotifyAPI {
         case .pause: _ = try await request("PUT", "/me/player/pause")
         case .next: _ = try await request("POST", "/me/player/next")
         case .previous: _ = try await request("POST", "/me/player/previous")
+        case .seek(let ms): _ = try await request("PUT", "/me/player/seek?position_ms=\(ms)")
         }
     }
 
@@ -103,7 +104,7 @@ final class SpotifyAPI {
     }
 }
 
-enum PlayerCommand { case play, pause, next, previous }
+enum PlayerCommand { case play, pause, next, previous, seek(ms: Int) }
 
 /// Fallback for when the Web API refuses playback control (free accounts get
 /// 403, and 404 means no active device): drive the local Spotify app instead.
@@ -115,6 +116,7 @@ enum SpotifyAppleScript {
         case .pause: verb = "pause"
         case .next: verb = "next track"
         case .previous: verb = "previous track"
+        case .seek(let ms): verb = "set player position to \(Double(ms) / 1000)"
         }
         let source = "if application \"Spotify\" is running then tell application \"Spotify\" to \(verb)"
         DispatchQueue.global(qos: .userInitiated).async {

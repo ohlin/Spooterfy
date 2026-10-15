@@ -10,7 +10,11 @@ final class PlayerStore: ObservableObject {
     @Published private(set) var upNext: [Item] = []
     @Published private(set) var isPlaying = false
     @Published private(set) var progressMs = 0
-    @Published private(set) var artwork: NSImage?
+    @Published private(set) var artwork: NSImage? {
+        didSet { accent = artwork.map(AccentColor.from) ?? .white }
+    }
+    /// The most vivid colour in the current artwork, for tinting the progress bar.
+    @Published private(set) var accent: Color = .white
     @Published private(set) var problem: String?
 
     let auth: SpotifyAuth
@@ -149,6 +153,12 @@ final class PlayerStore: ObservableObject {
     func playPause() { send(isPlaying ? .pause : .play) }
     func next() { send(.next) }
     func previousTrack() { send(.previous) }
+
+    func seek(toMs ms: Int) {
+        progressMs = max(0, ms)
+        progressStamp = Date()
+        send(.seek(ms: progressMs))
+    }
 
     func send(_ cmd: PlayerCommand) {
         // Optimistic: flip play state immediately so the UI and media keys feel instant.

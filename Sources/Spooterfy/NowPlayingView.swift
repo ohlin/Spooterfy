@@ -132,14 +132,14 @@ private struct ArtworkCard: View {
             .id(item.id)
             .transition(.opacity)
 
-            ProgressLine(durationMs: item.durationMs)
-                .frame(height: clamp(side * 0.008, 2, 4))
-
             if showControls && hovering {
                 TransportControls(size: side)
                     .frame(width: side, height: side)
                     .transition(.opacity)
             }
+
+            // Above the controls so it stays clickable while they're showing.
+            Scrubber(durationMs: item.durationMs, side: side)
         }
         .frame(width: side, height: side)
         .clipShape(RoundedRectangle(cornerRadius: radius, style: .continuous))
@@ -167,26 +167,85 @@ private struct ArtworkCard: View {
     }
 }
 
-/// Thin progress bar along the bottom of the artwork, interpolated between polls.
-private struct ProgressLine: View {
+/// Progress bar along the bottom of the artwork, tinted with the album's
+/// accent colour. It thickens on hover; click or drag anywhere on it to seek.
+private struct Scrubber: View {
     let durationMs: Int?
+    let side: CGFloat
     @EnvironmentObject private var store: PlayerStore
+    @State private var hoverX: CGFloat?
+    @State private var dragFraction: Double?
 
     var body: some View {
-        TimelineView(.animation(minimumInterval: 0.5, paused: !store.isPlaying)) { context in
+        let thin = clamp(side * 0.008, 2, 4)
+        let active = hoverX != nil || dragFraction != nil
+        let thickness = active ? thin * 2.5 : thin
+        let hitHeight = clamp(side * 0.07, 16, 30)
+        let duration = Double(max(durationMs ?? 0, 1))
+
+        TimelineView(.animation(minimumInterval: 0.5, paused: !store.isPlaying || dragFraction != nil)) { context in
             GeometryReader { geo in
+                let width = max(geo.size.width, 1)
                 let elapsed = Double(store.progressMs)
                     + (store.isPlaying ? context.date.timeIntervalSince(store.progressStamp) * 1000 : 0)
-                let fraction = durationMs.map { min(1, max(0, elapsed / Double(max($0, 1)))) } ?? 0
-                ZStack(alignment: .leading) {
-                    Rectangle().fill(.white.opacity(0.15))
-                    Rectangle().fill(.white.opacity(0.85))
-                        .frame(width: geo.size.width * fraction)
+                let fraction = dragFraction ?? min(1, max(0, elapsed / duration))
+                // The bubble follows the drag, or the pointer while hovering.
+                let bubbleFraction = dragFraction ?? hoverX.map { Double($0 / width) }
+
+                ZStack(alignment: .bottomLeading) {
+                    Rectangle().fill(.white.opacity(0.2))
+                        .frame(height: thickness)
+                    Rectangle().fill(store.accent)
+                        .frame(width: width * fraction, height: thickness)
+                        .shadow(color: store.accent.opacity(active ? 0.6 : 0), radius: 4)
+
+                    if let bubbleFraction, durationMs != nil {
+                        TimeBubble(ms: Int(bubbleFraction * duration), size: clamp(side * 0.035, 10, 14))
+                            .fixedSize()
+                            .position(x: clamp(width * bubbleFraction, 28, width - 28),
+                                      y: geo.size.height - thickness - clamp(side * 0.035, 10, 14) * 1.3)
+                            .transition(.opacity)
+                    }
                 }
+                .frame(width: width, height: geo.size.height, alignment: .bottomLeading)
+                .contentShape(Rectangle())
+                .onContinuousHover { phase in
+                    switch phase {
+                    case .active(let p): hoverX = min(max(p.x, 0), width)
+                    case .ended: hoverX = nil
+                    }
+                }
+                .gesture(
+                    DragGesture(minimumDistance: 0)
+                        .onChanged { g in dragFraction = Double(min(max(g.location.x / width, 0), 1)) }
+                        .onEnded { g in
+                            let f = Double(min(max(g.location.x / width, 0), 1))
+                            if durationMs != nil { store.seek(toMs: Int(f * duration)) }
+                            dragFraction = nil
+                        }
+                )
             }
         }
+        .frame(height: hitHeight)
         .frame(maxHeight: .infinity, alignment: .bottom)
-        .allowsHitTesting(false)
+        .animation(.easeOut(duration: 0.15), value: active)
+        .animation(.easeInOut(duration: 0.5), value: store.accent)
+    }
+}
+
+private struct TimeBubble: View {
+    let ms: Int
+    let size: CGFloat
+
+    var body: some View {
+        let seconds = max(0, ms / 1000)
+        Text(String(format: "%d:%02d", seconds / 60, seconds % 60))
+            .font(.atkinson(size, .semibold))
+            .monospacedDigit()
+            .foregroundStyle(.white)
+            .padding(.horizontal, size * 0.6)
+            .padding(.vertical, size * 0.25)
+            .glassEffect(.regular, in: Capsule())
     }
 }
 
