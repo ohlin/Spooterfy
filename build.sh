@@ -1,0 +1,22 @@
+#!/bin/zsh
+# Builds Spooterfy.app into ./build. Pass --install to copy it to /Applications.
+set -euo pipefail
+cd "$(dirname "$0")"
+
+swift build -c release
+BIN="$(swift build -c release --show-bin-path)/Spooterfy"
+
+APP=build/Spooterfy.app
+rm -rf "$APP"
+mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
+cp "$BIN" "$APP/Contents/MacOS/Spooterfy"
+cp Resources/Info.plist "$APP/Contents/Info.plist"
+[[ -f Resources/AppIcon.icns ]] && cp Resources/AppIcon.icns "$APP/Contents/Resources/"
+codesign --force --sign - "$APP"
+echo "Built $APP"
+
+if [[ "${1:-}" == "--install" ]]; then
+  rm -rf /Applications/Spooterfy.app
+  cp -R "$APP" /Applications/
+  echo "Installed /Applications/Spooterfy.app"
+fi
