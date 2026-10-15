@@ -1,0 +1,14 @@
+name: Idea or feature request
+description: Suggest a change to Spooterfy
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: Spooterfy is a personal project, so not every idea will fit. If it doesn't, a fork is a great home for it.
+  - type: textarea
+    id: idea
+    attributes:
+      label: What would you like?
+      description: What problem would it solve for you, and how do you picture it working?
+    validations:
+      required: true

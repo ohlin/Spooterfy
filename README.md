@@ -80,6 +80,10 @@ swift build && SPOOTERFY_SNAPSHOTS=/tmp/snaps .build/debug/Spooterfy
 | `Typography.swift` | Bundled Atkinson Hyperlegible fonts |
 | `Resources/spooterfy.icon` | App icon, made in Icon Composer; `build.sh` compiles it with `actool` |
 
+## Contributing
+
+Spooterfy is a personal project, but forks and contributions are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md), and report security problems privately as described in [SECURITY.md](SECURITY.md).
+
 ## License
 
 The code is MIT licensed; see [LICENSE](LICENSE). The bundled Atkinson Hyperlegible fonts belong to the Braille Institute; see [Resources/Fonts/README.md](Resources/Fonts/README.md).

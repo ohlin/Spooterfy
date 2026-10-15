@@ -1,0 +1,36 @@
+name: Bug report
+description: Something in Spooterfy isn't working
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What did you do, what did you expect, and what happened instead? A screenshot helps for anything visual.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Spooterfy version
+      description: Shown in Spooterfy → About Spooterfy.
+      placeholder: "1.0.0"
+    validations:
+      required: true
+  - type: input
+    id: macos
+    attributes:
+      label: macOS version
+      placeholder: "macOS 26.1"
+    validations:
+      required: true
+  - type: dropdown
+    id: premium
+    attributes:
+      label: Spotify account
+      options:
+        - Premium
+        - Free
+        - Not sure
+    validations:
+      required: true
