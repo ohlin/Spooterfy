@@ -50,6 +50,12 @@ struct SpooterfyApp: App {
                     .keyboardShortcut(.rightArrow, modifiers: .command)
                 Button("Previous Track") { store.previousTrack() }
                     .keyboardShortcut(.leftArrow, modifiers: .command)
+                Divider()
+                // Bare-letter shortcuts are handled by the main window (see NowPlayingView).
+                Button("Open Song in Spotify  (S)") { LilGuyThrower.shared.toss(.song) }
+                    .disabled(store.current == nil)
+                Button("Open Playlist in Spotify  (P)") { LilGuyThrower.shared.toss(.playlist) }
+                    .disabled(store.playlistLink == nil)
             }
         }
 

@@ -29,6 +29,8 @@ You stay signed in after that.
 | Play / pause | Media key, **Space**, or hover over the artwork |
 | Next / previous song | Media keys, **⌘→** / **⌘←**, or hover over the artwork |
 | Jump within the song | Click or drag the progress bar under the artwork |
+| Open the song in Spotify | **S** (the lil' guy throws the artwork into Spotify) |
+| Open the playlist in Spotify | **P** (if it's playing from a playlist; otherwise he shakes his head) |
 | Big Boy Spooterfy Mode™ | **F** fills the screen (menu bar and Dock stay) with the biggest text; **F** or **Esc** puts it back |
 | Close / minimise / full screen | **⌘W** / **⌘M** / **⌃⌘F** (the window has no title-bar buttons) |
 | Move the window | Drag it from anywhere |
@@ -84,6 +86,8 @@ swift build && SPOOTERFY_SNAPSHOTS=/tmp/snaps .build/debug/Spooterfy
 | `AccentColor.swift` | Picks the progress bar colour from the album art |
 | `AlbumTextColors.swift` | Picks text colours from the album art (Material Color Utilities) |
 | `TextScale.swift` | Text size steps for ⌘+ / ⌘- |
+| `BigMode.swift` | Big Boy Spooterfy Mode™ |
+| `LilGuy.swift` | The lil' green guy and his artwork throw (S and P) |
 | `Typography.swift` | Bundled Atkinson Hyperlegible fonts |
 | `Resources/spooterfy.icon` | App icon, made in Icon Composer; `build.sh` compiles it with `actool` |
 

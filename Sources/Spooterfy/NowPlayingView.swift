@@ -21,6 +21,14 @@ struct NowPlayingView: View {
                 }
             }
             .frame(width: geo.size.width, height: geo.size.height)
+            .overlayPreferenceValue(ArtworkFrameKey.self) { anchor in
+                LilGuyStage(
+                    artFrame: anchor.map { geo[$0] },
+                    artwork: store.artwork,
+                    windowSize: geo.size,
+                    open: { $0 == .song ? store.songLink : store.playlistLink }
+                )
+            }
         }
         .ignoresSafeArea()
         // Big Boy Spooterfy Mode™ uses the largest text without changing the user's setting.
@@ -38,6 +46,16 @@ struct NowPlayingView: View {
         .onKeyPress(characters: .init(charactersIn: "fF"), phases: .down) { press in
             guard press.modifiers.isEmpty || press.modifiers == .shift else { return .ignored }
             bigMode.toggle()
+            return .handled
+        }
+        .onKeyPress(characters: .init(charactersIn: "sS"), phases: .down) { press in
+            guard press.modifiers.isEmpty || press.modifiers == .shift, store.current != nil else { return .ignored }
+            LilGuyThrower.shared.toss(.song)
+            return .handled
+        }
+        .onKeyPress(characters: .init(charactersIn: "pP"), phases: .down) { press in
+            guard press.modifiers.isEmpty || press.modifiers == .shift, store.current != nil else { return .ignored }
+            LilGuyThrower.shared.toss(.playlist)
             return .handled
         }
         .onKeyPress(.escape) {
@@ -132,6 +150,8 @@ private struct ArtworkCard: View {
 
     @Environment(\.textPalette) private var palette
 
+    @ObservedObject private var thrower = LilGuyThrower.shared
+
     var body: some View {
         let radius = clamp(side * 0.03, 4, 14)
         let titleSize = clamp(side * 0.075, 12, 46 * textCeiling) * textScale
@@ -145,6 +165,8 @@ private struct ArtworkCard: View {
             artwork
                 .frame(width: side, height: side)
                 .clipped()
+                // Gone while the lil' guy has it; fades back after he leaves.
+                .opacity(thrower.artworkTaken ? 0 : 1)
 
             LinearGradient(colors: [.clear, .black.opacity(0.35), .black.opacity(0.8)],
                            startPoint: .init(x: 0.5, y: 0.45), endPoint: .bottom)
@@ -181,6 +203,7 @@ private struct ArtworkCard: View {
             }
         }
         .frame(width: side, height: side)
+        .anchorPreference(key: ArtworkFrameKey.self, value: .bounds) { $0 }
         .clipShape(RoundedRectangle(cornerRadius: radius, style: .continuous))
         .shadow(color: .black.opacity(0.45), radius: side * 0.04, y: side * 0.015)
         .onHover { h in withAnimation(.easeOut(duration: 0.15)) { hovering = h } }

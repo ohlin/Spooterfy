@@ -10,6 +10,9 @@ struct Item: Decodable, Equatable {
 
     let id: String?
     let name: String
+    /// e.g. "spotify:track:…"; opens in the Spotify app.
+    let uri: String?
+    let externalUrls: [String: String]?
     let durationMs: Int?
     let artists: [Artist]?
     let album: Album?
@@ -29,10 +32,20 @@ struct Item: Decodable, Equatable {
     }
 }
 
+/// What the song is playing from: a playlist, album, artist or show.
+struct PlaybackContext: Decodable, Equatable {
+    let type: String
+    let uri: String
+    let externalUrls: [String: String]?
+
+    var isPlaylist: Bool { type == "playlist" }
+}
+
 struct PlaybackState: Decodable {
     let isPlaying: Bool
     let progressMs: Int?
     let item: Item?
+    let context: PlaybackContext?
 }
 
 struct QueueResponse: Decodable {
@@ -41,7 +54,7 @@ struct QueueResponse: Decodable {
 }
 
 struct RecentlyPlayed: Decodable {
-    struct Entry: Decodable { let track: Item }
+    struct Entry: Decodable { let track: Item; let context: PlaybackContext? }
     let items: [Entry]
 }
 
@@ -67,9 +80,9 @@ final class SpotifyAPI {
         return try decoder.decode(QueueResponse.self, from: data)
     }
 
-    func recentlyPlayed(limit: Int = 3) async throws -> [Item] {
+    func recentlyPlayed(limit: Int = 3) async throws -> [RecentlyPlayed.Entry] {
         guard let data = try await request("GET", "/me/player/recently-played?limit=\(limit)") else { return [] }
-        return try decoder.decode(RecentlyPlayed.self, from: data).items.map(\.track)
+        return try decoder.decode(RecentlyPlayed.self, from: data).items
     }
 
     func command(_ cmd: PlayerCommand) async throws {

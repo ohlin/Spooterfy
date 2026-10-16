@@ -24,6 +24,8 @@ final class PlayerStore: ObservableObject {
     @Published private(set) var problem: String?
     /// Spotify has stopped entirely: the last song and list stay up, faded.
     @Published private(set) var isIdle = false
+    /// What the current song is playing from (kept while idle).
+    @Published private(set) var context: PlaybackContext?
 
     let auth: SpotifyAuth
     private let api: SpotifyAPI
@@ -100,6 +102,7 @@ final class PlayerStore: ObservableObject {
                 withAnimation(.easeInOut(duration: 0.8)) { isIdle = true }
             }
 
+            if let playback, playback.item != nil { context = playback.context }
             isPlaying = playback?.isPlaying ?? false
             progressMs = playback?.progressMs ?? 0
             progressStamp = Date()
@@ -120,12 +123,14 @@ final class PlayerStore: ObservableObject {
     }
 
     private func loadInitialPrevious() async {
-        guard let recent = try? await api.recentlyPlayed(limit: 3) else { return }
+        guard let entries = try? await api.recentlyPlayed(limit: 3) else { return }
+        let recent = entries.map(\.track)
         let currentID = (try? await api.playback())?.item?.id
         if currentID == nil, current == nil, let last = recent.first {
             // Nothing playing at launch: show the most recent song, faded.
             isIdle = true
             current = last
+            context = entries.first?.context
             previous = recent.dropFirst().first { $0.id != last.id }
             loadArtwork(last.artworkURL)
             return
@@ -143,6 +148,7 @@ final class PlayerStore: ObservableObject {
         artwork = nil
         artworkURL = nil
         problem = nil
+        context = nil
         isIdle = false
         MediaKeys.shared.update(item: nil, isPlaying: false, progressMs: 0)
     }
@@ -189,6 +195,24 @@ final class PlayerStore: ObservableObject {
     func playPause() { send(isPlaying ? .pause : .play) }
     func next() { send(.next) }
     func previousTrack() { send(.previous) }
+
+    // MARK: Opening in Spotify
+
+    /// The current song, as a link the Spotify app opens (or the web player if it isn't installed).
+    var songLink: URL? { Self.link(uri: current?.uri, web: current?.externalUrls?["spotify"]) }
+
+    /// The playlist the current song is playing from; nil when it's an album, artist, show or nothing.
+    var playlistLink: URL? {
+        guard let context, context.isPlaylist else { return nil }
+        return Self.link(uri: context.uri, web: context.externalUrls?["spotify"])
+    }
+
+    private static func link(uri: String?, web: String?) -> URL? {
+        if let uri, let app = URL(string: uri), NSWorkspace.shared.urlForApplication(toOpen: app) != nil {
+            return app
+        }
+        return web.flatMap(URL.init(string:))
+    }
 
     func seek(toMs ms: Int) {
         progressMs = max(0, ms)

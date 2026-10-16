@@ -97,6 +97,24 @@ enum Snapshots {
         }
         UserDefaults.standard.removeObject(forKey: "albumTextColors")
 
+        // The lil' guy in each pose.
+        do {
+            let poses = HStack(spacing: 30) {
+                LilGuy(armsUp: 0)
+                LilGuy(armsUp: 0.55).rotationEffect(.degrees(10), anchor: .bottom)
+                LilGuy(armsUp: 1).scaleEffect(x: 1, y: 0.9, anchor: .bottom)
+                LilGuy(armsUp: 0, blink: true).rotationEffect(.degrees(-14), anchor: .bottom)
+            }
+            .frame(height: 200)
+            .padding(40)
+            .background(Color(white: 0.15))
+            let renderer = ImageRenderer(content: poses)
+            renderer.scale = 1
+            if let cg = renderer.cgImage, let png = NSBitmapImageRep(cgImage: cg).representation(using: .png, properties: [:]) {
+                try? png.write(to: URL(fileURLWithPath: dir).appendingPathComponent("snap-lilguy.png"))
+            }
+        }
+
         // Big Boy Spooterfy Mode™ on a 1728×1084 laptop screen.
         BigMode.shared.setOnForSnapshots(true)
         do {
