@@ -2,27 +2,44 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-    <key>CFBundleName</key><string>Spooterfy</string>
-    <key>CFBundleDisplayName</key><string>Spooterfy</string>
-    <key>CFBundleIdentifier</key><string>com.ohlin.spooterfy</string>
-    <key>CFBundleExecutable</key><string>Spooterfy</string>
-    <key>CFBundlePackageType</key><string>APPL</string>
-    <key>CFBundleIconFile</key><string>spooterfy</string>
-    <key>CFBundleIconName</key><string>spooterfy</string>
-    <key>CFBundleShortVersionString</key><string>1.0.0</string>
-    <key>CFBundleVersion</key><string>1</string>
-    <key>LSMinimumSystemVersion</key><string>26.0</string>
-    <key>LSApplicationCategoryType</key><string>public.app-category.music</string>
-    <key>NSHighResolutionCapable</key><true/>
-    <key>NSPrincipalClass</key><string>NSApplication</string>
-    <key>NSAppleEventsUsageDescription</key>
-    <string>Spooterfy controls the Spotify app when the Spotify Web API can't (for example, on a free account).</string>
-    <key>CFBundleURLTypes</key>
-    <array>
-        <dict>
-            <key>CFBundleURLName</key><string>Spotify sign-in callback</string>
-            <key>CFBundleURLSchemes</key><array><string>spooterfy</string></array>
-        </dict>
-    </array>
+	<key>CFBundleDisplayName</key>
+	<string>Spooterfy</string>
+	<key>CFBundleExecutable</key>
+	<string>Spooterfy</string>
+	<key>CFBundleIconFile</key>
+	<string>spooterfy</string>
+	<key>CFBundleIconName</key>
+	<string>spooterfy</string>
+	<key>CFBundleIdentifier</key>
+	<string>com.ohlin.spooterfy</string>
+	<key>CFBundleName</key>
+	<string>Spooterfy</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>1.1.0</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>Spotify sign-in callback</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>spooterfy</string>
+			</array>
+		</dict>
+	</array>
+	<key>CFBundleVersion</key>
+	<string>2</string>
+	<key>LSApplicationCategoryType</key>
+	<string>public.app-category.music</string>
+	<key>LSMinimumSystemVersion</key>
+	<string>26.0</string>
+	<key>NSAppleEventsUsageDescription</key>
+	<string>Spooterfy controls the Spotify app when the Spotify Web API can't (for example, on a free account).</string>
+	<key>NSHighResolutionCapable</key>
+	<true/>
+	<key>NSPrincipalClass</key>
+	<string>NSApplication</string>
 </dict>
 </plist>
