@@ -11,8 +11,14 @@ final class PlayerStore: ObservableObject {
     @Published private(set) var isPlaying = false
     @Published private(set) var progressMs = 0
     @Published private(set) var artwork: NSImage? {
-        didSet { accent = artwork.map(AccentColor.from) ?? .white }
+        didSet {
+            accent = artwork.map(AccentColor.from) ?? .white
+            updateAlbumTextPalette()
+        }
     }
+    /// Text colours picked from the artwork; nil for black-and-white art or no art.
+    @Published private(set) var albumTextPalette: TextPalette?
+    private var paletteTask: Task<Void, Never>?
     /// The most vivid colour in the current artwork, for tinting the progress bar.
     @Published private(set) var accent: Color = .white
     @Published private(set) var problem: String?
@@ -142,6 +148,21 @@ final class PlayerStore: ObservableObject {
     }
 
     // MARK: Artwork
+
+    /// Quantizing takes a few milliseconds, so it runs off the main thread.
+    private func updateAlbumTextPalette() {
+        paletteTask?.cancel()
+        guard let image = artwork else {
+            albumTextPalette = nil
+            return
+        }
+        let art = image
+        paletteTask = Task {
+            let palette = await Task.detached(priority: .userInitiated) { AlbumTextColors.palette(for: art) }.value
+            guard !Task.isCancelled else { return }
+            withAnimation(.easeInOut(duration: 0.5)) { albumTextPalette = palette }
+        }
+    }
 
     private func loadArtwork(_ url: URL?) {
         artworkURL = url

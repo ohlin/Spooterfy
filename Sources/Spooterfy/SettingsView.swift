@@ -11,6 +11,7 @@ struct SettingsView: View {
     @AppStorage("glassDarkness") private var darkness = GlassDefaults.darkness
     @AppStorage("albumGlow") private var albumGlow = GlassDefaults.albumGlow
     @AppStorage(TextScale.key) private var textScale = TextScale.standard
+    @AppStorage("albumTextColors") private var albumTextColors = false
 
     var body: some View {
         Form {
@@ -78,6 +79,7 @@ struct SettingsView: View {
                     }
                 }
                 Toggle("Tint glass with album colors", isOn: $albumGlow)
+                Toggle("Color text with album colors", isOn: $albumTextColors)
                 if focusedStyle != GlassDefaults.focused || backgroundStyle != GlassDefaults.background || darkness != GlassDefaults.darkness || albumGlow != GlassDefaults.albumGlow {
                     Button("Reset to Defaults") {
                         focusedStyle = GlassDefaults.focused

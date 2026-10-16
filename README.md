@@ -39,6 +39,8 @@ With Spotify Premium, playback controls go through Spotify's Web API. Without Pr
 - **Glass when focused / in background:** Clear (Liquid Glass), Tinted (frosted) or Transparent (no glass). By default both are Clear, and the glass looks the same whether or not the window is focused.
 - **Darkness:** darkens the glass so text stays readable over a bright desktop.
 - **Tint glass with album colors:** washes the glass with the current album's colours.
+- **Color text with album colors:** tints the song titles, artists and list with colours picked from the artwork, kept light enough to read. Off by default.
+- **Text size:** ⌘+ and ⌘- step text from 80% to 175%; ⌘0 resets it.
 - **Keep window on top:** keeps Spooterfy above other apps, including full-screen ones, on every desktop.
 - **Show playback controls on hover**
 
@@ -77,6 +79,8 @@ swift build && SPOOTERFY_SNAPSHOTS=/tmp/snaps .build/debug/Spooterfy
 | `MediaKeys.swift` | Routes the keyboard's media keys to Spotify while focused |
 | `WindowGlass.swift` | Liquid Glass background and its settings |
 | `AccentColor.swift` | Picks the progress bar colour from the album art |
+| `AlbumTextColors.swift` | Picks text colours from the album art (Material Color Utilities) |
+| `TextScale.swift` | Text size steps for ⌘+ / ⌘- |
 | `Typography.swift` | Bundled Atkinson Hyperlegible fonts |
 | `Resources/spooterfy.icon` | App icon, made in Icon Composer; `build.sh` compiles it with `actool` |
 
@@ -86,6 +90,6 @@ Spooterfy is a personal project, but forks and contributions are welcome. See [C
 
 ## License
 
-The code is MIT licensed; see [LICENSE](LICENSE). The bundled Atkinson Hyperlegible fonts belong to the Braille Institute; see [Resources/Fonts/README.md](Resources/Fonts/README.md).
+The code is MIT licensed; see [LICENSE](LICENSE). The bundled Atkinson Hyperlegible fonts belong to the Braille Institute; see [Resources/Fonts/README.md](Resources/Fonts/README.md). `Packages/MaterialColorUtilities` is a vendored subset of Google's Material Color Utilities under the Apache License 2.0; see [its README](Packages/MaterialColorUtilities/README.md).
 
 Spooterfy isn't affiliated with or endorsed by Spotify.

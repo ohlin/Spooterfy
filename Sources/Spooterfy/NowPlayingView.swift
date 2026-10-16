@@ -4,6 +4,7 @@ struct NowPlayingView: View {
     @EnvironmentObject private var store: PlayerStore
     @EnvironmentObject private var auth: SpotifyAuth
     @AppStorage(TextScale.key) private var textScale = TextScale.standard
+    @AppStorage("albumTextColors") private var albumTextColors = false
 
     var body: some View {
         GeometryReader { geo in
@@ -22,6 +23,7 @@ struct NowPlayingView: View {
         }
         .ignoresSafeArea()
         .environment(\.textScale, CGFloat(textScale))
+        .environment(\.textPalette, albumTextColors ? store.albumTextPalette ?? .white : .white)
         .animation(.easeInOut(duration: 0.2), value: textScale)
         .frame(minWidth: 140, minHeight: 140)
         .focusable()
@@ -112,6 +114,8 @@ private struct ArtworkCard: View {
 
     @Environment(\.textScale) private var textScale
 
+    @Environment(\.textPalette) private var palette
+
     var body: some View {
         let radius = clamp(side * 0.03, 4, 14)
         let titleSize = clamp(side * 0.075, 12, 46) * textScale
@@ -135,11 +139,11 @@ private struct ArtworkCard: View {
                     .lineLimit(2)
                 Text(item.subtitle)
                     .font(.atkinson(artistSize, .medium))
-                    .foregroundStyle(.white.opacity(0.8))
+                    .foregroundStyle(palette.subtitle.opacity(0.85))
                     .lineLimit(1)
             }
             .minimumScaleFactor(0.7)
-            .foregroundStyle(.white)
+            .foregroundStyle(palette.title)
             .shadow(color: .black.opacity(0.4), radius: 6, y: 1)
             .padding(.horizontal, inset)
             .padding(.bottom, inset + 4)
@@ -306,16 +310,18 @@ private struct PreviousRow: View {
     let item: Item
     let font: CGFloat
 
+    @Environment(\.textPalette) private var palette
+
     var body: some View {
         HStack(spacing: font * 0.4) {
             Image(systemName: "arrow.uturn.backward")
                 .font(.system(size: font * 0.8, weight: .semibold))
-            Text("\(Text(item.name).fontWeight(.semibold))\(Text("  ·  " + item.subtitle).foregroundStyle(.white.opacity(0.7)))")
+            Text("\(Text(item.name).fontWeight(.semibold))\(Text("  ·  " + item.subtitle).foregroundStyle(palette.subtitle.opacity(0.8)))")
                 .lineLimit(1)
                 .truncationMode(.tail)
         }
         .font(.atkinson(font))
-        .foregroundStyle(.white.opacity(0.6))
+        .foregroundStyle(palette.subtitle.opacity(0.75))
         .shadow(color: .black.opacity(0.5), radius: 3, y: 1)
         .id(item.id)
         .transition(.opacity)
@@ -327,16 +333,18 @@ private struct QueueList: View {
     let items: [Item]
     let font: CGFloat
 
+    @Environment(\.textPalette) private var palette
+
     var body: some View {
         VStack(alignment: .leading, spacing: font * 0.5) {
             Text("UP NEXT")
                 .font(.atkinson(font * 0.75, .bold))
                 .tracking(1.2)
-                .foregroundStyle(.white.opacity(0.45))
+                .foregroundStyle(palette.label)
             if items.isEmpty {
                 Text("Queue is empty")
                     .font(.atkinson(font))
-                    .foregroundStyle(.white.opacity(0.5))
+                    .foregroundStyle(palette.subtitle.opacity(0.65))
             } else {
                 // Shows as many rows as fit; the rest fade out at the bottom edge.
                 VStack(alignment: .leading, spacing: font * 0.55) {
@@ -344,10 +352,10 @@ private struct QueueList: View {
                         VStack(alignment: .leading, spacing: 1) {
                             Text(item.name)
                                 .font(.atkinson(font, .semibold))
-                                .foregroundStyle(.white.opacity(0.92))
+                                .foregroundStyle(palette.title.opacity(0.95))
                             Text(item.subtitle)
                                 .font(.atkinson(font * 0.85))
-                                .foregroundStyle(.white.opacity(0.55))
+                                .foregroundStyle(palette.subtitle.opacity(0.7))
                         }
                         .lineLimit(1)
                         .frame(maxWidth: .infinity, alignment: .leading)

@@ -7,6 +7,11 @@ import SwiftUI
 @MainActor
 enum Snapshots {
     static func runIfRequested() {
+        guard ProcessInfo.processInfo.environment["SPOOTERFY_SNAPSHOTS"] != nil else { return }
+        Task { await render() }
+    }
+
+    private static func render() async {
         guard let dir = ProcessInfo.processInfo.environment["SPOOTERFY_SNAPSHOTS"] else { return }
         let auth = SpotifyAuth()
         auth.pretendSignedIn()
@@ -60,6 +65,37 @@ enum Snapshots {
             }
         }
         UserDefaults.standard.removeObject(forKey: TextScale.key)
+
+        // Album-coloured text, for this art and for a few typical covers.
+        UserDefaults.standard.set(true, forKey: "albumTextColors")
+        func solid(_ colors: [NSColor]) -> NSImage {
+            NSImage(size: NSSize(width: 640, height: 640), flipped: false) { rect in
+                NSGradient(colors: colors)!.draw(in: rect, angle: -60)
+                return true
+            }
+        }
+        let covers: [(String, NSImage)] = [
+            ("sample", art),
+            ("teal", solid([.black, NSColor(srgbRed: 0.05, green: 0.45, blue: 0.5, alpha: 1), NSColor(srgbRed: 0.9, green: 0.85, blue: 0.7, alpha: 1)])),
+            ("red", solid([NSColor(srgbRed: 0.55, green: 0.05, blue: 0.08, alpha: 1), NSColor(srgbRed: 0.95, green: 0.35, blue: 0.2, alpha: 1)])),
+            ("grey", solid([.black, .gray, .white])),
+        ]
+        for (name, cover) in covers {
+            store.loadSample(current: store.current!, previous: store.previous!, upNext: store.upNext, artwork: cover)
+            try? await Task.sleep(for: .seconds(1)) // palette is computed off the main thread
+            FileHandle.standardError.write(Data("\(name): palette \(store.albumTextPalette == nil ? "none (stays white)" : "picked")\n".utf8))
+            let view = NowPlayingView()
+                .environmentObject(store)
+                .environmentObject(auth)
+                .frame(width: 380, height: 640)
+            let renderer = ImageRenderer(content: view)
+            renderer.scale = 1
+            if let cg = renderer.cgImage,
+               let png = NSBitmapImageRep(cgImage: cg).representation(using: .png, properties: [:]) {
+                try? png.write(to: URL(fileURLWithPath: dir).appendingPathComponent("snap-color-\(name).png"))
+            }
+        }
+        UserDefaults.standard.removeObject(forKey: "albumTextColors")
 
         // The same window after Spotify stops.
         store.setIdleForSnapshots(true)
