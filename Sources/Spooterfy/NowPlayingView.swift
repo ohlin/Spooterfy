@@ -4,6 +4,7 @@ struct NowPlayingView: View {
     @EnvironmentObject private var store: PlayerStore
     @EnvironmentObject private var auth: SpotifyAuth
     @AppStorage(TextScale.key) private var textScale = TextScale.standard
+    @ObservedObject private var bigMode = BigMode.shared
     @AppStorage("albumTextColors") private var albumTextColors = false
 
     var body: some View {
@@ -22,15 +23,28 @@ struct NowPlayingView: View {
             .frame(width: geo.size.width, height: geo.size.height)
         }
         .ignoresSafeArea()
-        .environment(\.textScale, CGFloat(textScale))
+        // Big Boy Spooterfy Mode™ uses the largest text without changing the user's setting.
+        .environment(\.textScale, CGFloat(bigMode.isOn ? TextScale.steps.last! : textScale))
+        .environment(\.textCeiling, bigMode.isOn ? 2 : 1)
         .environment(\.textPalette, albumTextColors ? store.albumTextPalette ?? .white : .white)
         .animation(.easeInOut(duration: 0.2), value: textScale)
+        .animation(.easeInOut(duration: 0.3), value: bigMode.isOn)
         .frame(minWidth: 140, minHeight: 140)
         .focusable()
         .focusEffectDisabled()
         .onKeyPress(.space) { store.playPause(); return .handled }
         .onKeyPress(.rightArrow) { store.next(); return .handled }
         .onKeyPress(.leftArrow) { store.previousTrack(); return .handled }
+        .onKeyPress(characters: .init(charactersIn: "fF"), phases: .down) { press in
+            guard press.modifiers.isEmpty || press.modifiers == .shift else { return .ignored }
+            bigMode.toggle()
+            return .handled
+        }
+        .onKeyPress(.escape) {
+            guard bigMode.isOn else { return .ignored }
+            bigMode.exit()
+            return .handled
+        }
     }
 }
 
@@ -43,6 +57,7 @@ private struct PlayerLayout: View {
     let current: Item
     @EnvironmentObject private var store: PlayerStore
 
+    @Environment(\.textCeiling) private var textCeiling
     @Environment(\.textScale) private var textScale
 
     var body: some View {
@@ -55,7 +70,7 @@ private struct PlayerLayout: View {
             // Side by side: artwork left, previous + up next on the right.
             let art = min(h - pad * 2, w * 0.62)
             let colWidth = w - art - pad * 3
-            let font = clamp(colWidth * 0.055, 10, 15) * textScale
+            let font = clamp(colWidth * 0.055, 10, 15 * textCeiling) * textScale
             HStack(alignment: .top, spacing: pad) {
                 ArtworkCard(item: current, side: art)
                 if colWidth > 90 {
@@ -74,7 +89,7 @@ private struct PlayerLayout: View {
             .frame(width: w, height: h, alignment: .leading)
         } else {
             // Stacked: previous above, artwork, up next below.
-            let font = clamp(w * 0.034, 10, 15) * textScale
+            let font = clamp(w * 0.034, 10, 15 * textCeiling) * textScale
             let rowH = font * 2.6
             let showPrev = store.previous != nil && h > 220
             let prevH = showPrev ? font * 1.5 + gap : 0
@@ -112,14 +127,15 @@ private struct ArtworkCard: View {
     @AppStorage("showControlsOnHover") private var showControls = true
     @State private var hovering = false
 
+    @Environment(\.textCeiling) private var textCeiling
     @Environment(\.textScale) private var textScale
 
     @Environment(\.textPalette) private var palette
 
     var body: some View {
         let radius = clamp(side * 0.03, 4, 14)
-        let titleSize = clamp(side * 0.075, 12, 46) * textScale
-        let artistSize = clamp(side * 0.05, 10, 30) * textScale
+        let titleSize = clamp(side * 0.075, 12, 46 * textCeiling) * textScale
+        let artistSize = clamp(side * 0.05, 10, 30 * textCeiling) * textScale
         let inset = clamp(side * 0.055, 8, 28)
 
         ZStack(alignment: .bottomLeading) {

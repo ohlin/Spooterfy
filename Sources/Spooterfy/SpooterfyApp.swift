@@ -6,6 +6,7 @@ struct SpooterfyApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     @StateObject private var store = PlayerStore(auth: SpotifyAuth())
     @AppStorage(TextScale.key) private var textScale = TextScale.standard
+    @ObservedObject private var bigMode = BigMode.shared
 
     init() {
         Typography.registerFonts()
@@ -34,6 +35,13 @@ struct SpooterfyApp: App {
                 Button("Actual Size") { textScale = TextScale.standard }
                     .keyboardShortcut("0", modifiers: .command)
                     .disabled(textScale == TextScale.standard)
+                Divider()
+                // No menu shortcut: a bare F would also fire while typing in Settings.
+                // The main window handles F and Esc itself.
+                Toggle("\(BigMode.name)  (F)", isOn: Binding(
+                    get: { bigMode.isOn },
+                    set: { _ in bigMode.toggle() }
+                ))
                 Divider()
             }
             CommandMenu("Playback") {
@@ -85,6 +93,7 @@ private struct WindowConfigurator: NSViewRepresentable {
             window.backgroundColor = .clear
             window.level = onTop ? .floating : .normal
             AlwaysActiveAppearance.apply(to: window)
+            BigMode.shared.window = window
             // Stay visible over full-screen apps and on every Space while pinned.
             if onTop {
                 window.collectionBehavior.insert([.canJoinAllSpaces, .fullScreenAuxiliary])

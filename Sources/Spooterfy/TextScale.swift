@@ -37,4 +37,7 @@ enum TextScale {
 
 extension EnvironmentValues {
     @Entry var textScale: CGFloat = 1
+    /// Multiplies the size caps that keep text tidy in small windows; raised in
+    /// Big Boy Spooterfy Mode™ so text can grow with the whole screen.
+    @Entry var textCeiling: CGFloat = 1
 }

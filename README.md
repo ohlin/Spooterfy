@@ -1,5 +1,7 @@
 # Spooterfy
 
+> Spooterfy is just a lil' guy, you know? He likes album art and readable text, and if you do too, you just might get along. He survives on a steady diet of Apple chips and hand-crafted playlists.
+
 A small, resizable macOS window that shows what's playing on Spotify.
 
 - **Now playing:** the album artwork, big, with the song title and artist over it.
@@ -27,6 +29,7 @@ You stay signed in after that.
 | Play / pause | Media key, **Space**, or hover over the artwork |
 | Next / previous song | Media keys, **⌘→** / **⌘←**, or hover over the artwork |
 | Jump within the song | Click or drag the progress bar under the artwork |
+| Big Boy Spooterfy Mode™ | **F** fills the screen (menu bar and Dock stay) with the biggest text; **F** or **Esc** puts it back |
 | Close / minimise / full screen | **⌘W** / **⌘M** / **⌃⌘F** (the window has no title-bar buttons) |
 | Move the window | Drag it from anywhere |
 

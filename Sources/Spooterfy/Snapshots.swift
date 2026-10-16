@@ -97,6 +97,18 @@ enum Snapshots {
         }
         UserDefaults.standard.removeObject(forKey: "albumTextColors")
 
+        // Big Boy Spooterfy Mode™ on a 1728×1084 laptop screen.
+        BigMode.shared.setOnForSnapshots(true)
+        do {
+            let view = NowPlayingView().environmentObject(store).environmentObject(auth).frame(width: 1728, height: 1084)
+            let renderer = ImageRenderer(content: view)
+            renderer.scale = 0.5
+            if let cg = renderer.cgImage, let png = NSBitmapImageRep(cgImage: cg).representation(using: .png, properties: [:]) {
+                try? png.write(to: URL(fileURLWithPath: dir).appendingPathComponent("snap-bigboy.png"))
+            }
+        }
+        BigMode.shared.setOnForSnapshots(false)
+
         // The same window after Spotify stops.
         store.setIdleForSnapshots(true)
         let idleView = NowPlayingView()
